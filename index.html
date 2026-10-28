@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Amaze Amaze Amaze</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: one screen of deep space, a gold Astrophage horizon, Rocky standing on the reflective floor beside the pitch. Single dark look by choice. */
+  :root {
+    --void: #07080d;
+    --void-2: #10121b;
+    --ink: #f1ead9;
+    --muted: #a49c8a;
+    --gold: #f2a93b;
+    --gold-hot: #ffd27a;
+    --rock: #8d7c66;
+    --teal: #3fb7a6;
+    --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    color-scheme: dark;
+  }
+  html, body { height: 100%; }
+  body {
+    background: var(--void);
+    color: var(--ink);
+    font-family: var(--display);
+    overflow-x: hidden;
+  }
+  #stars { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+  .stage {
+    position: relative; z-index: 1;
+    min-height: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(24px, 4vw, 64px);
+    max-width: 1180px; margin: 0 auto;
+    padding-block: clamp(32px, 6vh, 72px);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    box-sizing: border-box;
+  }
+  .copy { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  .readout {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold); display: flex; flex-wrap: wrap; gap: 6px 18px;
+  }
+  .readout span::before { content: "●"; margin-right: 8px; font-size: 8px; vertical-align: 2px; color: var(--teal); }
+  h1 {
+    margin: 0; font-weight: 800; line-height: .92; letter-spacing: -.035em;
+    font-size: clamp(44px, 7vw, 92px); text-wrap: balance;
+  }
+  h1 em {
+    font-style: normal; display: block;
+    background: linear-gradient(90deg, var(--gold) 0%, var(--gold-hot) 50%, var(--gold) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { margin: 0; font-size: clamp(17px, 1.6vw, 20px); line-height: 1.55; color: var(--muted); max-width: 46ch; }
+  .lede b { color: var(--ink); font-weight: 700; }
+
+  form { display: flex; flex-wrap: wrap; gap: 10px; max-width: 520px; }
+  label.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  input[type=email] {
+    flex: 1 1 240px; min-width: 0;
+    font: 500 16px/1 var(--mono); color: var(--ink);
+    background: var(--void-2); border: 1px solid #2c2a26; border-radius: 4px;
+    padding: 16px 16px;
+  }
+  input[type=email]::placeholder { color: #6d685d; }
+  input[type=email]:focus { outline: 2px solid var(--gold); outline-offset: 2px; border-color: transparent; }
+  button {
+    flex: 0 0 auto;
+    font: 800 17px/1 var(--display); letter-spacing: .01em;
+    color: var(--void); background: var(--gold);
+    border: 0; border-radius: 4px; padding: 16px 24px; cursor: pointer;
+    box-shadow: 0 0 0 0 rgba(242,169,59,.6), 0 10px 40px -10px rgba(242,169,59,.7);
+    transition: transform .15s ease, background .15s ease;
+  }
+  button:hover { background: var(--gold-hot); transform: translateY(-1px); }
+  button:active { transform: translateY(1px) scale(.98); }
+  button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .note { font-family: var(--mono); font-size: 13px; color: var(--muted); min-height: 1.4em; margin: -6px 0 0; }
+  .note.ok { color: var(--teal); }
+  .note.err { color: #ff8a6b; }
+
+  .scene { position: relative; min-width: 0; }
+  .scene svg { display: block; width: 100%; height: auto; max-width: 560px; margin: 0 auto; overflow: visible; }
+  .bubble {
+    position: absolute; left: 50%; top: 2%; transform: translate(-50%, 0) scale(.6);
+    font: 800 clamp(18px, 2.4vw, 26px)/1 var(--display); color: var(--void);
+    background: var(--gold-hot); padding: 12px 18px; border-radius: 999px;
+    white-space: nowrap; opacity: 0; pointer-events: none;
+    transition: opacity .2s ease, transform .3s cubic-bezier(.3,1.6,.5,1);
+  }
+  .bubble::after {
+    content: ""; position: absolute; left: 50%; bottom: -8px; width: 16px; height: 16px;
+    background: inherit; transform: translateX(-50%) rotate(45deg); border-radius: 2px;
+  }
+  .scene.talking .bubble { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .notes-fx { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+  .notes-fx span {
+    position: absolute; font-size: 26px; color: var(--gold-hot);
+    animation: floatnote 1.6s ease-out forwards;
+  }
+  @keyframes floatnote {
+    from { transform: translate(0, 0) rotate(0); opacity: 1; }
+    to { transform: translate(var(--dx), -140px) rotate(var(--rot)); opacity: 0; }
+  }
+
+  footer {
+    position: relative; z-index: 1;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: #6d685d;
+    text-align: center; padding-block: 0 24px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* --- Rocky --- */
+  #rocky .leg, #rocky .body, #rocky .whole { transform-box: view-box; }
+  #rocky .whole { transform-origin: 200px 300px; animation: breathe 3.2s ease-in-out infinite; }
+  #rocky .leg { animation: shift 3.2s ease-in-out infinite; }
+  #rocky .leg:nth-child(2) { animation-delay: -.6s; }
+  #rocky .leg:nth-child(3) { animation-delay: -1.2s; }
+  #rocky .leg:nth-child(4) { animation-delay: -1.8s; }
+  #rocky .leg:nth-child(5) { animation-delay: -2.4s; }
+  @keyframes breathe { 50% { transform: translateY(-3px); } }
+  @keyframes shift { 50% { transform: rotate(var(--sway, 2deg)); } }
+
+  #rocky.dancing .whole { animation: bounce .42s cubic-bezier(.4,0,.6,1) infinite alternate; }
+  #rocky.dancing .leg { animation: kick .42s ease-in-out infinite alternate; }
+  #rocky.dancing .leg:nth-child(odd) { animation-direction: alternate-reverse; }
+  #rocky.dancing .shadow { animation: shrink .42s cubic-bezier(.4,0,.6,1) infinite alternate; transform-box: fill-box; transform-origin: center; }
+  @keyframes bounce {
+    0% { transform: translate(-14px, 0) rotate(-7deg); }
+    100% { transform: translate(14px, -46px) rotate(7deg); }
+  }
+  @keyframes kick {
+    0% { transform: rotate(calc(var(--kick, 18deg) * -1)); }
+    100% { transform: rotate(var(--kick, 18deg)); }
+  }
+  @keyframes shrink { to { transform: scale(.7); opacity: .5; } }
+
+  @media (max-width: 760px) {
+    .stage { grid-template-columns: minmax(0, 1fr); padding-block: 28px 16px; gap: 8px; }
+    .scene { order: -1; max-width: 420px; width: 100%; margin: 0 auto; }
+    h1 { font-size: clamp(44px, 13vw, 72px); }
+    form button { flex: 1 1 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #rocky .whole, #rocky .leg { animation: none !important; }
+    #rocky.dancing .whole { animation: bounce .8s ease-in-out 3 alternate !important; }
+    .notes-fx span { animation-duration: .01s; }
+  }
+</style>
+
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<main class="stage">
+  <section class="copy">
+    <div class="readout"><span>Tau Ceti · 11.9 ly</span><span>Xenonite hull: intact</span></div>
+    <h1>Rocky, you, <em>FRIENDS FOREVER!</em></h1>
+    <p class="lede">A fan dispatch for <b>Project Hail Mary</b>. Leave your email and Rocky will celebrate the only way an Eridian knows how: with chords.</p>
+    <form id="signup" novalidate>
+      <label class="sr" for="email">Email address</label>
+      <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@earth.sol" required>
+      <button type="submit">Amaze me</button>
+    </form>
+    <p class="note" id="note" role="status" aria-live="polite">Sound on. Rocky is loud.</p>
+  </section>
+
+  <section class="scene" id="scene" aria-label="Rocky, an Eridian engineer">
+    <div class="bubble" aria-hidden="true">♪ Amaze amaze amaze! ♪</div>
+    <div class="notes-fx" id="notesFx" aria-hidden="true"></div>
+    <svg id="rocky" viewBox="0 0 400 360" role="img" aria-label="Rocky, a five-legged rock-shelled Eridian">
+      <defs>
+        <filter id="stone" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="4" seed="7" result="noise"/>
+          <feDiffuseLighting in="noise" lighting-color="#fff" surfaceScale="3.2" result="lit">
+            <feDistantLight azimuth="235" elevation="48"/>
+          </feDiffuseLighting>
+          <feComposite in="lit" in2="SourceGraphic" operator="in" result="litIn"/>
+          <feBlend in="SourceGraphic" in2="litIn" mode="multiply"/>
+        </filter>
+        <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#c2ad8c"/>
+          <stop offset=".55" stop-color="#8d7c66"/>
+          <stop offset="1" stop-color="#4c4135"/>
+        </linearGradient>
+        <linearGradient id="limb" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#b19d7f"/>
+          <stop offset="1" stop-color="#5d5042"/>
+        </linearGradient>
+        <radialGradient id="glow" cx=".5" cy=".5" r=".5">
+          <stop offset="0" stop-color="#f2a93b" stop-opacity=".55"/>
+          <stop offset="1" stop-color="#f2a93b" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- Astrophage horizon + floor -->
+      <ellipse cx="200" cy="300" rx="230" ry="16" fill="url(#glow)"/>
+      <rect x="-40" y="298" width="480" height="3" rx="1.5" fill="#ffd27a" opacity=".85"/>
+      <ellipse class="shadow" cx="200" cy="318" rx="120" ry="10" fill="#000" opacity=".55"/>
+
+      <g class="whole">
+        <g class="legs" filter="url(#stone)">
+          <!-- each leg: hip -> high knee -> foot with three blunt fingers -->
+          <g class="leg" style="transform-origin:128px 168px; --sway:-3deg; --kick:-22deg">
+            <path d="M128 168 L60 120 L70 112 L138 158 Z" fill="url(#limb)"/>
+            <path d="M60 120 L40 290 L58 292 L72 116 Z" fill="url(#limb)"/>
+            <path d="M36 290 l-10 14 h12 l4 -10 l4 12 h10 l-2 -14 l8 10 h8 l-12 -14 z" fill="#5d5042"/>
+            <circle cx="66" cy="116" r="9" fill="#9b8a70"/>
+          </g>
+          <g class="leg" style="transform-origin:160px 180px; --sway:2deg; --kick:16deg">
+            <path d="M160 180 L118 196 L122 208 L166 192 Z" fill="url(#limb)"/>
+            <path d="M118 196 L112 296 L128 296 L128 200 Z" fill="url(#limb)"/>
+            <path d="M108 294 l-8 12 h11 l4 -8 l4 10 h10 l-2 -12 l7 8 h8 l-10 -12 z" fill="#4c4135"/>
+            <circle cx="122" cy="202" r="8" fill="#9b8a70"/>
+          </g>
+          <g class="leg" style="transform-origin:200px 188px; --sway:-2deg; --kick:10deg">
+            <path d="M192 186 L190 292 L210 292 L208 186 Z" fill="url(#limb)"/>
+            <path d="M186 290 l-8 14 h12 l4 -10 l6 12 h8 l2 -12 l6 10 h10 l-10 -14 z" fill="#4c4135"/>
+            <circle cx="200" cy="240" r="9" fill="#a89577"/>
+            <path d="M193 240 h14" stroke="#3fb7a6" stroke-width="3" opacity=".8"/>
+          </g>
+          <g class="leg" style="transform-origin:240px 180px; --sway:-2deg; --kick:-16deg">
+            <path d="M240 180 L282 196 L278 208 L234 192 Z" fill="url(#limb)"/>
+            <path d="M282 196 L288 296 L272 296 L272 200 Z" fill="url(#limb)"/>
+            <path d="M292 294 l8 12 h-11 l-4 -8 l-4 10 h-10 l2 -12 l-7 8 h-8 l10 -12 z" fill="#4c4135"/>
+            <circle cx="278" cy="202" r="8" fill="#9b8a70"/>
+          </g>
+          <g class="leg" style="transform-origin:272px 168px; --sway:3deg; --kick:22deg">
+            <path d="M272 168 L340 120 L330 112 L262 158 Z" fill="url(#limb)"/>
+            <path d="M340 120 L360 290 L342 292 L328 116 Z" fill="url(#limb)"/>
+            <path d="M364 290 l10 14 h-12 l-4 -10 l-4 12 h-10 l2 -14 l-8 10 h-8 l12 -14 z" fill="#5d5042"/>
+            <circle cx="334" cy="116" r="9" fill="#9b8a70"/>
+          </g>
+        </g>
+
+        <!-- carapace: an irregular five-sided stone, no eyes, no face -->
+        <g class="body" filter="url(#stone)">
+          <path d="M200 70 L268 98 L290 160 L246 204 L156 204 L110 160 L134 96 Z" fill="url(#shell)"/>
+          <path d="M200 70 L268 98 L236 132 L170 128 L134 96 Z" fill="#cbb796" opacity=".55"/>
+          <path d="M170 128 L236 132 L246 204 L156 204 Z" fill="#6e604f" opacity=".45"/>
+          <path d="M110 160 L170 128 L156 204 Z" fill="#5b4f41" opacity=".5"/>
+          <path d="M290 160 L236 132 L246 204 Z" fill="#7a6a56" opacity=".5"/>
+        </g>
+        <!-- xenonite-blue mineral glints like the reference -->
+        <path d="M146 112 l14 -6 l4 10 l-12 4 z" fill="#3fb7a6" opacity=".85"/>
+        <path d="M250 150 l12 -2 l-2 12 z" fill="#3fb7a6" opacity=".7"/>
+        <path d="M188 176 l10 2 l-4 8 z" fill="#5fd1c0" opacity=".6"/>
+        <!-- the blowhole-like vent Rocky "speaks" through -->
+        <ellipse cx="200" cy="92" rx="10" ry="4" fill="#2e271f"/>
+      </g>
+    </svg>
+  </section>
+</main>
+
+<footer>Fan-made tribute. Not affiliated with the book, the film, or its publishers.</footer>
+
+<script>
+(() => {
+  // ---- starfield ----
+  const cv = document.getElementById('stars');
+  const cx = cv.getContext('2d');
+  let stars = [];
+  function size() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(innerWidth * innerHeight / 2600);
+    stars = Array.from({ length: n }, () => ({
+      x: Math.random() * innerWidth, y: Math.random() * innerHeight,
+      r: Math.random() * 1.3 + .2, t: Math.random() * 6.28, s: Math.random() * .02 + .004,
+      warm: Math.random() < .35
+    }));
+  }
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function draw() {
+    cx.clearRect(0, 0, innerWidth, innerHeight);
+    const g = cx.createRadialGradient(innerWidth * .7, innerHeight * .55, 0, innerWidth * .7, innerHeight * .55, innerWidth * .7);
+    g.addColorStop(0, 'rgba(242,169,59,0.10)'); g.addColorStop(1, 'rgba(7,8,13,0)');
+    cx.fillStyle = g; cx.fillRect(0, 0, innerWidth, innerHeight);
+    for (const s of stars) {
+      s.t += s.s;
+      cx.globalAlpha = .45 + .55 * Math.abs(Math.sin(s.t));
+      cx.fillStyle = s.warm ? '#ffd9a0' : '#f1ead9';
+      cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, 6.283); cx.fill();
+    }
+    cx.globalAlpha = 1;
+    if (!still) requestAnimationFrame(draw);
+  }
+  size(); draw();
+  addEventListener('resize', () => { size(); if (still) draw(); });
+
+  // ---- Rocky's voice: the "amaze, amaze, amaze" clip from the user's recording ----
+  const voice = new Audio('amaze.m4a');
+  voice.preload = 'auto';
+  function amaze() {
+    try { voice.currentTime = 0; voice.play().catch(() => {}); } catch (e) {}
+  }
+
+  // ---- dance + floating notes ----
+  const rocky = document.getElementById('rocky');
+  const scene = document.getElementById('scene');
+  const fx = document.getElementById('notesFx');
+  let stopTimer;
+  function dance() {
+    rocky.classList.remove('dancing'); void rocky.getBoundingClientRect();
+    rocky.classList.add('dancing'); scene.classList.add('talking');
+    const glyphs = ['♪', '♫', '♬', '♩'];
+    for (let i = 0; i < 9; i++) {
+      setTimeout(() => {
+        const s = document.createElement('span');
+        s.textContent = glyphs[i % 4];
+        s.style.left = (35 + Math.random() * 30) + '%';
+        s.style.top = (22 + Math.random() * 12) + '%';
+        s.style.setProperty('--dx', (Math.random() * 160 - 80) + 'px');
+        s.style.setProperty('--rot', (Math.random() * 60 - 30) + 'deg');
+        fx.appendChild(s);
+        setTimeout(() => s.remove(), 1700);
+      }, i * 260);
+    }
+    clearTimeout(stopTimer);
+    stopTimer = setTimeout(() => { rocky.classList.remove('dancing'); scene.classList.remove('talking'); }, 3600);
+  }
+
+  // ---- the one CTA ----
+  const form = document.getElementById('signup');
+  const email = document.getElementById('email');
+  const note = document.getElementById('note');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const v = email.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+      note.className = 'note err';
+      note.textContent = 'Rocky needs a full email address, like name@example.com.';
+      email.focus();
+      return;
+    }
+    amaze(); dance();
+    note.className = 'note ok';
+    note.textContent = 'Amaze! Welcome to the crew, ' + v.split('@')[0] + '.';
+    email.value = '';
+  });
+})();
+</script>
+
+</body>
+</html>
